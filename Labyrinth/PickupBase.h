@@ -54,4 +54,6 @@ protected:
 	/** The display mesh component */
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Replicated)
 	UStaticMeshComponent* DisplayMeshComponent;
+
+
 };
