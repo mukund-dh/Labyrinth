@@ -58,6 +58,4 @@ public:
 	/** The display mesh component */
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Replicated)
 	UStaticMeshComponent* DisplayMeshComponent;
-
-
 };
