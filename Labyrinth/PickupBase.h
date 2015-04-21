@@ -56,6 +56,6 @@ public:
 	virtual bool ServerAddItemToInventory_Validate(ALabyrinthCharacter* MainChar);
 
 	/** The display mesh component */
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Replicated)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Replicated)
 	UStaticMeshComponent* DisplayMeshComponent;
 };

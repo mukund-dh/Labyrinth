@@ -15,6 +15,7 @@ APickupBase::APickupBase(const FObjectInitializer& ObjectInitializer) : Super(Ob
 
 	DisplayMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Pickup Mesh"));
 	RootComponent = DisplayMeshComponent;
+	DisplayMeshComponent->SetIsReplicated(true);
 }
 
 void APickupBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
@@ -25,13 +26,17 @@ void APickupBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLi
 	DOREPLIFETIME(APickupBase, Weight);
 	DOREPLIFETIME(APickupBase, SalvageValue);
 	DOREPLIFETIME(APickupBase, DisplayName);
+	DOREPLIFETIME(APickupBase, DisplayMesh);
 	DOREPLIFETIME(APickupBase, DisplayMeshComponent);
 }
 
 void APickupBase::OnConstruction(const FTransform& Transform)
 {
+	DisplayMeshComponent->SetMobility(EComponentMobility::Movable);
+
 	// Set the Display Mesh Component to the DisplayMesh
 	DisplayMeshComponent->SetStaticMesh(DisplayMesh);
+
 	// Enable the physics simulation
 	DisplayMeshComponent->SetSimulatePhysics(true);
 }
