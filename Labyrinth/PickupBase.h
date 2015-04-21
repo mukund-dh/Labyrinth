@@ -45,10 +45,15 @@ public:
 	/** Remove highlighting when out of focus */
 	bool EndFocusItem_Implementation();
 
-	/** A function to add this item into the inventory of the character who picks it up */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Inventory)
+	UFUNCTION(BlueprintNativeEvent, Category = Inventory)
 	bool AddItemToInventory(ALabyrinthCharacter* MainChar);
 	virtual bool AddItemToInventory_Implementation(ALabyrinthCharacter* MainChar);
+
+	/** A function to add this item into the inventory of the character who picks it up */
+	UFUNCTION(BlueprintCallable, WithValidation, Server, Reliable, Category = Inventory)
+	void ServerAddItemToInventory(ALabyrinthCharacter* MainChar);
+	virtual void ServerAddItemToInventory_Implementation(ALabyrinthCharacter* MainChar);
+	virtual bool ServerAddItemToInventory_Validate(ALabyrinthCharacter* MainChar);
 
 	/** The display mesh component */
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Replicated)
