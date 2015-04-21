@@ -92,16 +92,23 @@ protected:
 	*/
 	bool EnableTouchscreenMovement(UInputComponent* InputComponent);
 
+	/** Get which usable actor the player is focussing on */
 	class AUsableActor* GetUsableInView();
 
+	/** The maximum distance in which an object can be defined as usable */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	float MaxUseDistance;
 
+	/** Does this character have a new focus? */
 	bool bHasNewFocus;
 
+	/** Pointer to the current usable actor in focus */
 	AUsableActor* FocusedUsableActor;
 
 public:
+	/**
+	 * Function that defines what happens when a player uses a usable object.
+	 */
 	UFUNCTION(BlueprintCallable, WithValidation, Server, Reliable, Category = PlayerAbility)
 	virtual void Use();
 	void Use_Implementation();

@@ -48,6 +48,11 @@ bool APickupBase::EndFocusItem_Implementation()
 	return false;
 }
 
+//bool APickupBase::AddItemToInventory(ALabyrinthCharacter* MainChar)
+//{
+//	return true;
+//}
+
 bool APickupBase::AddItemToInventory_Implementation(ALabyrinthCharacter* MainChar)
 {
 	return true;

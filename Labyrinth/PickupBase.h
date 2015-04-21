@@ -21,7 +21,7 @@ public:
 	APickupBase(const FObjectInitializer& ObjectInitializer);
 
 	/** The display mesh */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Pickup Properties")
 	UStaticMesh* DisplayMesh;
 
 	/** The Name to be displayed */
@@ -46,13 +46,12 @@ public:
 	bool EndFocusItem_Implementation();
 
 	/** A function to add this item into the inventory of the character who picks it up */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = FooBar)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Inventory)
 	bool AddItemToInventory(ALabyrinthCharacter* MainChar);
 	virtual bool AddItemToInventory_Implementation(ALabyrinthCharacter* MainChar);
 
-protected:
 	/** The display mesh component */
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Replicated)
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Replicated)
 	UStaticMeshComponent* DisplayMeshComponent;
 
 

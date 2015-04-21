@@ -17,13 +17,30 @@ public:
 
 	AUsableActor(const FObjectInitializer& ObjectInitializer);
 
+	/**
+	 * A function to implement what happens when a player uses
+	 * this object. Should be implemented in the derived children's
+	 * blueprints.
+	 */
 	UFUNCTION(BlueprintImplementableEvent)
 	bool OnUsed(ACharacter* character);
 
+	/**
+	 * Function that implements what happens when the object becomes the focus
+	 * of the current player. The default behaviour is to render a custom
+	 * depth pass. Can be implemented in code, and overridden in the 
+	 * derived children's blueprints.
+	 */
 	UFUNCTION(BlueprintNativeEvent)
 	bool StartFocusItem();
 	bool StartFocusItem_Implementation();
 
+	/**
+	 * Function that implements what happens when the object loses focus
+	 * of the current player. The default behaviour is to render a custom
+	 * depth pass. Can be implemented in code, and overridden in the 
+	 * derived children's blueprints.
+	 */
 	UFUNCTION(BlueprintNativeEvent)
 	bool EndFocusItem();
 	bool EndFocusItem_Implementation();
