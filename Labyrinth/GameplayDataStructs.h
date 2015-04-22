@@ -12,9 +12,6 @@ struct FGameplayObjectData : public FTableRowBase
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(BlueprintReadOnly, Category = "G.O.D.")
-	FString DisplayName;
-
-	UPROPERTY(BlueprintReadOnly, Category = "G.O.D.")
 	FString DisplayMesh;
 
 	UPROPERTY(BlueprintReadOnly, Category = "G.O.D.")
