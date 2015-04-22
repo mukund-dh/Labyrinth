@@ -49,6 +49,7 @@ public:
 	/** Remove highlighting when out of focus */
 	bool EndFocusItem_Implementation();
 
+	/** Add this object to the character's inventory */
 	UFUNCTION(BlueprintNativeEvent, Category = Inventory)
 	bool AddItemToInventory(ALabyrinthCharacter* MainChar);
 	virtual bool AddItemToInventory_Implementation(ALabyrinthCharacter* MainChar);
@@ -59,6 +60,7 @@ public:
 	virtual void ServerAddItemToInventory_Implementation(ALabyrinthCharacter* MainChar);
 	virtual bool ServerAddItemToInventory_Validate(ALabyrinthCharacter* MainChar);
 
+	/** A function to update the Static Mesh Component */
 	UFUNCTION()
 	void UpdateDisplayMesh();
 };
