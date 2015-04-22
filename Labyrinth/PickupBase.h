@@ -37,7 +37,7 @@ public:
 	float SalvageValue;
 
 	/** The display mesh component */
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Pickup Properties")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Pickup Properties")
 	UStaticMeshComponent* DisplayMeshComponent;
 
 	/** The construction script */
