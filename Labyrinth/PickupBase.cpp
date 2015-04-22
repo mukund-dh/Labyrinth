@@ -26,8 +26,7 @@ void APickupBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLi
 	DOREPLIFETIME(APickupBase, Weight);
 	DOREPLIFETIME(APickupBase, SalvageValue);
 	DOREPLIFETIME(APickupBase, DisplayName);
-	DOREPLIFETIME(APickupBase, DisplayMesh);
-	DOREPLIFETIME(APickupBase, DisplayMeshComponent);
+	DOREPLIFETIME_CONDITION_NOTIFY(APickupBase, DisplayMesh, COND_None, REPNOTIFY_Always);
 }
 
 void APickupBase::OnConstruction(const FTransform& Transform)
@@ -66,4 +65,9 @@ void APickupBase::ServerAddItemToInventory_Implementation(ALabyrinthCharacter* M
 bool APickupBase::ServerAddItemToInventory_Validate(ALabyrinthCharacter* MainChar)
 {
 	return true;
+}
+
+void APickupBase::UpdateDisplayMesh()
+{
+	DisplayMeshComponent->SetStaticMesh(DisplayMesh);
 }

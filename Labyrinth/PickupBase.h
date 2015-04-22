@@ -21,7 +21,7 @@ public:
 	APickupBase(const FObjectInitializer& ObjectInitializer);
 
 	/** The display mesh */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Pickup Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = UpdateDisplayMesh, Category = "Pickup Properties")
 	UStaticMesh* DisplayMesh;
 
 	/** The Name to be displayed */
@@ -35,6 +35,10 @@ public:
 	/** The salvage value of the object */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Pickup Properties")
 	float SalvageValue;
+
+	/** The display mesh component */
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Pickup Properties")
+	UStaticMeshComponent* DisplayMeshComponent;
 
 	/** The construction script */
 	virtual void OnConstruction(const FTransform& Transform) override;
@@ -55,7 +59,6 @@ public:
 	virtual void ServerAddItemToInventory_Implementation(ALabyrinthCharacter* MainChar);
 	virtual bool ServerAddItemToInventory_Validate(ALabyrinthCharacter* MainChar);
 
-	/** The display mesh component */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Replicated)
-	UStaticMeshComponent* DisplayMeshComponent;
+	UFUNCTION()
+	void UpdateDisplayMesh();
 };
