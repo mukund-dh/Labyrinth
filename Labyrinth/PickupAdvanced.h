@@ -22,7 +22,7 @@ public:
 	APickupAdvanced(const FObjectInitializer& ObjectInitializer);
 
 	/** The Name to be displayed */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = UpdateDisplayMesh, Category = "Pickup Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = UpdateMesh, Category = "Pickup Properties")
 	FName DisplayName;
 
 	/** The Name to be displayed */
@@ -61,10 +61,18 @@ public:
 	virtual void ServerAddItemToInventory_Implementation(ALabyrinthCharacter* MainChar);
 	virtual bool ServerAddItemToInventory_Validate(ALabyrinthCharacter* MainChar);
 
-	UStaticMesh* LoadSelectedAsset(FGameplayObjectData* ObjData);
+	UStaticMesh* LoadSelectedAsset();
 
-protected:
+	UFUNCTION(BLueprintCallable, WithValidation, Server, Reliable, Category = Inventory)
+	void UpdateMesh();
+	virtual void UpdateMesh_Implementation();
+	virtual bool UpdateMesh_Validate();
+
 	/** A function to update the Static Mesh Component */
 	UFUNCTION()
-	void UpdateDisplayMesh();	
+	void UpdateDisplayMesh();
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Defaults)
+	TAssetPtr<UStaticMesh> LoadMesh;
 };

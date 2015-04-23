@@ -36,8 +36,7 @@ void APickupAdvanced::OnConstruction(const FTransform& Transform)
 
 	//DisplayName = GameObjectData->GetRowNames()[0];
 
-	// Set the Display Mesh Component to the DisplayMesh
-	//DisplayMeshComponent->SetStaticMesh(DisplayMesh);
+	UpdateDisplayMesh();
 
 }
 
@@ -75,26 +74,34 @@ void APickupAdvanced::UpdateDisplayMesh()
 	{
 		// The specified name was not found.
 		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Red, "The specified name was not found, genius");
-		return; 
+		return;
 	}
 
-	UStaticMesh* DispMesh = LoadSelectedAsset(ObjData);
+	LoadMesh = ObjData->DisplayMesh;
+	UStaticMesh* DispMesh = LoadSelectedAsset();
 	if (DispMesh)
 		DisplayMeshComponent->SetStaticMesh(DispMesh);
-	
 }
 
-UStaticMesh* APickupAdvanced::LoadSelectedAsset(FGameplayObjectData* ObjData)
+void APickupAdvanced::UpdateMesh_Implementation()
+{
+	UpdateDisplayMesh();
+}
+
+bool APickupAdvanced::UpdateMesh_Validate()
+{
+	return true;
+}
+
+UStaticMesh* APickupAdvanced::LoadSelectedAsset()
 {
 	FStreamableManager& Streamable = ULabyrinthSingleton::Get().AssetLoader;
-	const FStringAssetReference& AssetRef = ObjData->DisplayMesh.ToStringReference();
+	const FStringAssetReference& AssetRef = LoadMesh.ToStringReference();
 
-	TAssetPtr<UStaticMesh> LoadedMesh = ObjData->DisplayMesh;
-
-	if (ObjData->DisplayMesh.IsPending())
+	if (LoadMesh.IsPending())
 	{
-		LoadedMesh = Cast <UStaticMesh>(Streamable.SynchronousLoad(AssetRef));
+		LoadMesh = Cast <UStaticMesh>(Streamable.SynchronousLoad(AssetRef));
 	}
 
-	return LoadedMesh.Get();
+	return LoadMesh.Get();
 }
