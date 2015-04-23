@@ -12,7 +12,7 @@ struct FGameplayObjectData : public FTableRowBase
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(BlueprintReadOnly, Category = "G.O.D.")
-	FString DisplayMesh;
+	TAssetPtr<UStaticMesh> DisplayMesh;
 
 	UPROPERTY(BlueprintReadOnly, Category = "G.O.D.")
 	float HealthPoints;

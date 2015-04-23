@@ -4,37 +4,37 @@
 
 #include "UsableActor.h"
 #include "LabyrinthCharacter.h"
-#include "PickupBase.generated.h"
+#include "PickupAdvanced.generated.h"
 
 /**
- * A base class for all Pickups in the world. This a simple actor
- * which requires user inputs for the type of actor to fill the world
- * with.
+ * A Pickup which is going to derive its properties from a data
+ * table. This is totally identical to the PickupBase in functionality
+ * and in declaration. 
  */
 UCLASS()
-class LABYRINTH_API APickupBase : public AUsableActor
+class LABYRINTH_API APickupAdvanced : public AUsableActor
 {
 	GENERATED_BODY()
 	
 public:
-	
-	/** Constructor */
-	APickupBase(const FObjectInitializer& ObjectInitializer);
 
-	/** The display mesh */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = UpdateDisplayMesh, Category = "Pickup Properties")
-	UStaticMesh* DisplayMesh;
+	/** Constructor */
+	APickupAdvanced(const FObjectInitializer& ObjectInitializer);
 
 	/** The Name to be displayed */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup Properties")
-	FText DisplayName;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = UpdateDisplayMesh, Category = "Pickup Properties")
+	FName DisplayName;
+
+	/** The Name to be displayed */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Pickup Properties")
+	UDataTable* GameObjectData;
 
 	/** The weight of the object */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup Properties")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Pickup Properties")
 	float Weight;
 
 	/** The salvage value of the object */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup Properties")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Pickup Properties")
 	float SalvageValue;
 
 	/** The display mesh component */
@@ -45,7 +45,7 @@ public:
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 	/** Do the highlighting when in focus */
-	bool StartFocusItem_Implementation();	
+	bool StartFocusItem_Implementation();
 
 	/** Remove highlighting when out of focus */
 	bool EndFocusItem_Implementation();
@@ -61,8 +61,10 @@ public:
 	virtual void ServerAddItemToInventory_Implementation(ALabyrinthCharacter* MainChar);
 	virtual bool ServerAddItemToInventory_Validate(ALabyrinthCharacter* MainChar);
 
+	UStaticMesh* LoadSelectedAsset(FGameplayObjectData* ObjData);
+
 protected:
 	/** A function to update the Static Mesh Component */
 	UFUNCTION()
-	void UpdateDisplayMesh();
+	void UpdateDisplayMesh();	
 };

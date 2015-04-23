@@ -23,9 +23,6 @@ void APickupBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	// Replicate to everyone
-	DOREPLIFETIME(APickupBase, Weight);
-	DOREPLIFETIME(APickupBase, SalvageValue);
-	DOREPLIFETIME(APickupBase, DisplayName);
 	DOREPLIFETIME_CONDITION_NOTIFY(APickupBase, DisplayMesh, COND_None, REPNOTIFY_Always);
 }
 
