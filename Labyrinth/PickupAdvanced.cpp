@@ -17,6 +17,11 @@ APickupAdvanced::APickupAdvanced(const FObjectInitializer& ObjectInitializer) : 
 	DisplayMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Pickup Mesh"));
 	RootComponent = DisplayMeshComponent;
 	DisplayMeshComponent->SetIsReplicated(true);
+
+	// Initialize the Data table to a default value
+	static ConstructorHelpers::FObjectFinder<UDataTable> DataAssetFinder(TEXT("/Game/Blueprints/Book1"));
+	GameObjectData = DataAssetFinder.Object;
+
 }
 
 void APickupAdvanced::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
@@ -36,7 +41,7 @@ void APickupAdvanced::OnConstruction(const FTransform& Transform)
 
 	//DisplayName = GameObjectData->GetRowNames()[0];
 
-	UpdateDisplayMesh();
+	UpdateMesh();
 
 }
 
@@ -67,7 +72,7 @@ bool APickupAdvanced::ServerAddItemToInventory_Validate(ALabyrinthCharacter* Mai
 	return true;
 }
 
-void APickupAdvanced::UpdateDisplayMesh()
+void APickupAdvanced::UpdateMesh()
 {
 	FGameplayObjectData* ObjData = GameObjectData->FindRow<FGameplayObjectData>(DisplayName, "");
 	if (!ObjData)
@@ -83,12 +88,12 @@ void APickupAdvanced::UpdateDisplayMesh()
 		DisplayMeshComponent->SetStaticMesh(DispMesh);
 }
 
-void APickupAdvanced::UpdateMesh_Implementation()
+void APickupAdvanced::UpdateDisplayMesh_Implementation()
 {
-	UpdateDisplayMesh();
+	UpdateMesh();
 }
 
-bool APickupAdvanced::UpdateMesh_Validate()
+bool APickupAdvanced::UpdateDisplayMesh_Validate()
 {
 	return true;
 }

@@ -61,16 +61,18 @@ public:
 	virtual void ServerAddItemToInventory_Implementation(ALabyrinthCharacter* MainChar);
 	virtual bool ServerAddItemToInventory_Validate(ALabyrinthCharacter* MainChar);
 
+	/** A function to do the synchrounous swap of the asset */
 	UStaticMesh* LoadSelectedAsset();
 
-	UFUNCTION(BLueprintCallable, WithValidation, Server, Reliable, Category = Inventory)
-	void UpdateMesh();
-	virtual void UpdateMesh_Implementation();
-	virtual bool UpdateMesh_Validate();
+	/** A blueprint callable function which updates the display mesh */
+	UFUNCTION(BlueprintCallable, WithValidation, Server, Reliable, Category = Inventory)
+	void UpdateDisplayMesh();
+	virtual void UpdateDisplayMesh_Implementation();
+	virtual bool UpdateDisplayMesh_Validate();
 
 	/** A function to update the Static Mesh Component */
 	UFUNCTION()
-	void UpdateDisplayMesh();
+	void UpdateMesh();
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Defaults)
