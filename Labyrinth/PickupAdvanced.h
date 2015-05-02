@@ -61,7 +61,7 @@ public:
 	virtual void ServerAddItemToInventory_Implementation(ALabyrinthCharacter* MainChar);
 	virtual bool ServerAddItemToInventory_Validate(ALabyrinthCharacter* MainChar);
 
-	/** A function to do the synchrounous swap of the asset */
+	/** A function to do the synchrounous load of the asset */
 	UStaticMesh* LoadSelectedAsset();
 
 	/** A blueprint callable function which updates the display mesh */

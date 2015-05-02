@@ -22,7 +22,7 @@ class LABYRINTH_API ALabyrinthCharacter : public ACharacter
 
 public:
 	// Sets default values for this character's properties
-	ALabyrinthCharacter();
+	ALabyrinthCharacter(const FObjectInitializer& ObjectInitializer);
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
@@ -40,7 +40,14 @@ public:
 	virtual void BeginPlay() override;
 	
 	// Called every frame
-	virtual void Tick( float DeltaSeconds ) override;
+	virtual void Tick(float DeltaSeconds) override;
+
+	//virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+	//virtual void PawnClientRestart() override;
+
+	///** Stop playing all anim montages */
+	//void StopAllAnimMontages();
 
 protected:
 
