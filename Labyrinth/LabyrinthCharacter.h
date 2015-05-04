@@ -35,6 +35,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaSeconds) override;
 
+	virtual void PostInitializeComponents() override;
+
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	virtual void PawnClientRestart() override;
@@ -100,6 +102,8 @@ public:
 
 	UFUNCTION(Reliable, Server, WithValidation)
 	void ServerSetIsJumping(bool NewJumping);
+	virtual void ServerSetIsJumping_Implementation(bool NewJumping);
+	virtual bool ServerSetIsJumping_Validate(bool NewJumping);
 
 	void OnLanded(const FHitResult& Hit) override;
 
@@ -107,12 +111,14 @@ public:
 	void SetSprinting(bool NewSprinting);
 
 	UFUNCTION(Reliable, Server, WithValidation)
-	void ServerSetSprinting();
+	void ServerSetSprinting(bool NewSprinting);
+	virtual void ServerSetSprinting_Implementation(bool NewSprinting);
+	virtual bool ServerSetSprinting_Validate(bool NewSprinting);
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	bool IsSprinting() const;
 
-	float GetSprintingSpeedModifier();
+	float GetSprintingSpeedModifier() const;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float SprintingSpeedModifier;
@@ -132,7 +138,7 @@ public:
 
 	/** The maximum distance in which an object can be defined as usable */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-		float MaxUseDistance;
+	float MaxUseDistance;
 
 	/** Does this character have a new focus? */
 	bool bHasNewFocus;
@@ -152,6 +158,8 @@ public:
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerSetTargeting(bool NewTargeting);
+	virtual void ServerSetTargeting_Implementation(bool NewTargeting);
+	virtual bool ServerSetTargeting_Validate(bool NewTargeting);
 
 	UFUNCTION(BlueprintCallable, Category = "Targeting")
 	bool IsTargeting() const;
@@ -181,7 +189,7 @@ public:
 	float GetHunger() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Player Condition")
-	float GetMaxHUnger() const;
+	float GetMaxHunger() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Player Condition")
 	void ConsumeFood(float AmountRestored);
@@ -192,7 +200,10 @@ public:
 	void IncrementHunger();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player Condition")
-	float IncrementHungerIntrval;
+	float IncrementHungerAmount;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player Condition")
+	float IncrementHungerInterval;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player Condition")
 	float CriticalHungerThreshold;
@@ -257,7 +268,7 @@ private:
 	bool bWantsToFire;
 
 	/** Distance to use when dropping inventory actors */
-	UPROPERTY(EditDefautsOnly, Category = "Inventory")
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 	float DropItemDistance;
 
 	void OnStartFire();
@@ -280,7 +291,7 @@ private:
 
 	void DropWeapon();
 
-	UFUNCTION(Relaiable, Server, WithValidation)
+	UFUNCTION(Reliable, Server, WithValidation)
 	void ServerDropWeapon();
 
 public:
@@ -298,12 +309,12 @@ public:
 	FName GetInventoryAttachPoint(EInventorySlot Slot) const;
 
 	/** All items that the player has */
-	UPROPERTY(Transient, Replicated)
-	TArray<APickup*> Inventory;
+	/*UPROPERTY(Transient, Replicated)
+	TArray<APickup*> Inventory;*/
 
 	void SpawnDefaultInventory();
 
-	void SetCurrentItem(class APickup* NewItem, class APickup* LastItem = nullptr);
+	/*void SetCurrentItem(class APickup* NewItem, class APickup* LastItem = nullptr);
 
 	void EquipItem(APickup* Item);
 
@@ -321,7 +332,7 @@ public:
 	class APickup* CurrentItem;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
-	TArray<TSubclassOf<class APickup>> DefaultInventoryClasses;
+	TArray<TSubclassOf<class APickup>> DefaultInventoryClasses;*/
 
 	/** Returns Mesh1P subobject **/
 	FORCEINLINE class USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
