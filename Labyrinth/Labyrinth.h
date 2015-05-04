@@ -4,6 +4,8 @@
 
 #include "Engine.h"
 #include "UnrealNetwork.h"
+#include "LabyrinthGameMode.h"
+#include "LabyrinthCharacter.h"
 
 #define COLLISION_PROJECTILE ECC_GameTraceChannel1
 

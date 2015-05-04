@@ -2,10 +2,12 @@
 
 #include "Labyrinth.h"
 #include "LabyrinthCharacter.h"
+#include "LabyrinthCharMoveComp.h"
 
 
 // Sets default values
-ALabyrinthCharacter::ALabyrinthCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+ALabyrinthCharacter::ALabyrinthCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<ULabyrinthCharMoveComp>(ACharacter::CharacterMovementComponentName))
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
