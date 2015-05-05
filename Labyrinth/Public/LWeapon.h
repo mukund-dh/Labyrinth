@@ -3,16 +3,16 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
-#include "ALWeapon.generated.h"
+#include "LWeapon.generated.h"
 
 UCLASS()
-class LABYRINTH_API AALWeapon : public AActor
+class LABYRINTH_API ALWeapon : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AALWeapon();
+	ALWeapon();
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
