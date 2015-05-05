@@ -281,11 +281,11 @@ private:
 
 	void OnEquipPrimaryWeapon();
 
-	void OnEquipSecondaryWeapo();
+	void OnEquipSecondaryWeapon();
 
-	void StartWeaponFire();
+	//void StartWeaponFire();
 
-	void StopWeaponFire();
+	//void StopWeaponFire();
 
 	void DestroyInventory();
 
@@ -293,6 +293,8 @@ private:
 
 	UFUNCTION(Reliable, Server, WithValidation)
 	void ServerDropWeapon();
+	virtual void ServerDropWeapon_Implementation();
+	virtual bool ServerDropWeapon_Validate();
 
 public:
 
@@ -308,9 +310,10 @@ public:
 	/** Return the socket names for attachements */
 	FName GetInventoryAttachPoint(EInventorySlot Slot) const;
 
+	// MAKE THIS WEAPON!!!
 	/** All items that the player has */
-	/*UPROPERTY(Transient, Replicated)
-	TArray<APickup*> Inventory;*/
+	UPROPERTY(Transient, Replicated)
+	TArray<AActor*> Inventory;
 
 	void SpawnDefaultInventory();
 
@@ -320,6 +323,8 @@ public:
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerEquipItem(APickup* Item);
+	virtual void ServerEquipItem_Implementation(APickup* Item);
+	virtual bool ServerEquipItem_Validate(APickup* Item);
 
 	UFUNCTION()
 	void OnRep_CurretItem(APickup* LastItem);
@@ -329,10 +334,11 @@ public:
 	void RemoveItem(APickup* Item);
 
 	UPROPERTY(Transient, ReplciatedUsing = OnRep_CurretItem)
-	class APickup* CurrentItem;
+	class APickup* CurrentItem;*/
 
+	// MAKE THIS INTO THE WEAPON.
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
-	TArray<TSubclassOf<class APickup>> DefaultInventoryClasses;*/
+	TArray<TSubclassOf<class AActor>> DefaultInventoryClasses;
 
 	/** Returns Mesh1P subobject **/
 	FORCEINLINE class USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }

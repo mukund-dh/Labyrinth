@@ -202,7 +202,7 @@ void ALabyrinthCharacter::SetupPlayerInputComponent(class UInputComponent* Input
 	InputComponent->BindAction("PrevWeapon", IE_Pressed, this, &ALabyrinthCharacter::OnPrevWeapon);
 
 	InputComponent->BindAction("EquipPrimaryWeapon", IE_Pressed, this, &ALabyrinthCharacter::OnEquipPrimaryWeapon);
-	InputComponent->BindAction("EquipSecondaryWeapon", IE_Pressed, this, &ALabyrinthCharacter::OnEquipSecondaryWeapo);
+	InputComponent->BindAction("EquipSecondaryWeapon", IE_Pressed, this, &ALabyrinthCharacter::OnEquipSecondaryWeapon);
 
 	if (EnableTouchscreenMovement(InputComponent) == false)
 	{
@@ -564,6 +564,8 @@ float ALabyrinthCharacter::TakeDamage(float Damage, struct FDamageEvent const& D
 			PlayHit(ActualDamage, DamageEvent, Pawn, DamageCauser, false);
 		}
 	}
+
+	return ActualDamage;
 }
 
 bool ALabyrinthCharacter::CanDie(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser) const
@@ -596,4 +598,272 @@ bool ALabyrinthCharacter::Die(float KillingDamage, FDamageEvent const& DamageEve
 
 	OnDeath(KillingDamage, DamageEvent, Killer ? Killer->GetPawn() : NULL, DamageCauser);
 	return true;
+}
+
+void ALabyrinthCharacter::OnDeath(float KillingDamage, FDamageEvent const& DamageEvent, APawn* PawnInstigator, AActor* DamageCauser)
+{
+	if (bIsDying)
+	{
+		return;
+	}
+
+	bReplicateMovement = false;
+	bTearOff = true;
+	bIsDying = true;
+
+	PlayHit(KillingDamage, DamageEvent, PawnInstigator, DamageCauser, true);
+
+	DestroyInventory();
+
+	DetachFromControllerPendingDestroy();
+	StopAllAnimMontages();
+
+	// Disable collision on capsule
+	UCapsuleComponent* CapComp = GetCapsuleComponent();
+	CapComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CapComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+
+	USkeletalMeshComponent* SkelMesh = GetMesh();
+	if (SkelMesh)
+	{
+		SkelMesh->SetCollisionProfileName(TEXT("Ragdoll"));
+	}
+
+	SetActorEnableCollision(true);
+
+	SetRagdollPhysics();
+}
+
+void ALabyrinthCharacter::SetRagdollPhysics()
+{
+	bool bInRagdoll = false;
+	USkeletalMeshComponent* SkelMesh = GetMesh();
+
+	if (IsPendingKill())
+	{
+		bInRagdoll = false;
+	}
+	else if (!SkelMesh || !SkelMesh->GetPhysicsAsset())
+	{
+		bInRagdoll = false;
+	}
+	else
+	{
+		SkelMesh->SetAllBodiesSimulatePhysics(true);
+		SkelMesh->SetSimulatePhysics(true);
+		SkelMesh->WakeAllRigidBodies();
+		SkelMesh->bBlendPhysics = true;
+
+		bInRagdoll = true;
+	}
+
+	UCharacterMovementComponent* CharMoveComp = Cast<UCharacterMovementComponent>(GetMovementComponent());
+	if (CharMoveComp)
+	{
+		CharMoveComp->StopMovementImmediately();
+		CharMoveComp->DisableMovement();
+		CharMoveComp->SetComponentTickEnabled(false);
+	}
+
+	if (!bInRagdoll)
+	{
+		// Hide the pawn
+		TurnOff();
+		SetActorHiddenInGame(true);
+		SetLifeSpan(1.0f);
+	}
+	else
+	{
+		SetLifeSpan(10.0f);
+	}
+}
+
+void ALabyrinthCharacter::FellOutOfWorld(const class UDamageType& DmgType)
+{
+	Die(Health, FDamageEvent(DmgType.GetClass()), NULL, NULL);
+}
+
+void ALabyrinthCharacter::PlayHit(float DamageTaken, struct FDamageEvent const& DamageEvent, APawn* PawnInstigator, AActor* DamageCauser, bool bKilled)
+{
+	if (Role == ROLE_Authority)
+	{
+		ReplicateHit(DamageTaken, DamageEvent, PawnInstigator, DamageCauser, bKilled);
+	}
+
+	// Apply Damage momentum specific to the damage type
+	if (DamageTaken > 0.f)
+	{
+		ApplyDamageMomentum(DamageTaken, DamageEvent, PawnInstigator, DamageCauser);
+	}
+}
+
+void ALabyrinthCharacter::ReplicateHit(float DamageTaken, struct FDamageEvent const& DamageEvent, APawn* PawnInstigator, AActor* DamageCauser, bool bKilled)
+{
+	const float TimeoutTime = GetWorld()->GetTimeSeconds() + 0.5f;
+
+	FDamageEvent const& LastDamageEvent = LastTakeHitInfo.GetDamageEvent();
+	if (PawnInstigator == LastTakeHitInfo.PawnInstigator.Get() && LastDamageEvent.DamageTypeClass == LastTakeHitInfo.DamageTypeClass)
+	{
+		// Same frame Damage
+		if (bKilled && LastTakeHitInfo.bIsKilled)
+		{
+			// Redundant death take hit, ignore
+			return;
+		}
+
+		DamageTaken += LastTakeHitInfo.ActualDamage;
+	}
+
+	LastTakeHitInfo.ActualDamage = DamageTaken;
+	LastTakeHitInfo.PawnInstigator = Cast<ALabyrinthCharacter>(PawnInstigator);
+	LastTakeHitInfo.DamageCauser = DamageCauser;
+	LastTakeHitInfo.SetDamageEvent(DamageEvent);
+	LastTakeHitInfo.bIsKilled = bKilled;
+	LastTakeHitInfo.EnsureReplication();
+}
+
+void ALabyrinthCharacter::OnRep_LastTakeHitInfo()
+{
+	if (LastTakeHitInfo.bIsKilled)
+	{
+		OnDeath(LastTakeHitInfo.ActualDamage, LastTakeHitInfo.GetDamageEvent(), LastTakeHitInfo.PawnInstigator.Get(), LastTakeHitInfo.DamageCauser.Get());
+	}
+	else
+	{
+		PlayHit(LastTakeHitInfo.ActualDamage, LastTakeHitInfo.GetDamageEvent(), LastTakeHitInfo.PawnInstigator.Get(), LastTakeHitInfo.DamageCauser.Get(), LastTakeHitInfo.bIsKilled);
+	}
+}
+
+bool ALabyrinthCharacter::CanFire() const
+{
+	// We can add our own checks here, eg. powers are recharging, etc.
+	return IsAlive();
+}
+
+bool ALabyrinthCharacter::IsFiring() const
+{
+	//return CurrentWeapon && CurrentWeapon->GetCurrentState() == EWeaponState::Firing;
+	return false;
+}
+
+FName ALabyrinthCharacter::GetInventoryAttachPoint(EInventorySlot Slot) const
+{
+	// Return the socke name for the specified storage slot
+	switch (Slot)
+	{
+	case EInventorySlot::Hands :
+		return WeaponAttachPoint;
+	case EInventorySlot::Primary :
+		return SpineAttachPoint;
+	case EInventorySlot::Secondary :
+		return PelvisAttachPoint;
+	default :
+		// Not Implemented
+		return "";
+	}
+}
+
+void ALabyrinthCharacter::SpawnDefaultInventory()
+{
+	if (Role < ROLE_Authority)
+	{
+		return;
+	}
+
+	for (int32 i = 0; i < DefaultInventoryClasses.Num(); i++)
+	{
+		if (DefaultInventoryClasses[i])
+		{
+			FActorSpawnParameters SpawnInfo;
+			SpawnInfo.bNoCollisionFail = true;
+			//ALWeapon* NewWeapon = GetWorld()->SpawnActor<ALWeapon>(DefaultInventoryClasses[i], SpawnInfo);
+
+			//AddWeapon(NewWeapon);
+		}
+	}
+}
+
+void ALabyrinthCharacter::DestroyInventory()
+{
+	if (Role < ROLE_Authority)
+	{
+		return;
+	}
+
+	for (int32 i = Inventory.Num() - 1; i >= 0; i++)
+	{
+		// Change this to ALWeapon
+		AActor* Weapon = Inventory[i];
+		if (Weapon)
+		{
+			//RemoveWeapon(Weapon);
+			Weapon->Destroy();
+		}
+	}
+}
+
+void ALabyrinthCharacter::PawnClientRestart()
+{
+	Super::PawnClientRestart();
+
+	//SetCurrentItem(CurrentItem);
+}
+
+void ALabyrinthCharacter::OnStartFire()
+{
+
+}
+
+void ALabyrinthCharacter::OnStopFire()
+{
+
+}
+
+void ALabyrinthCharacter::OnNextWeapon()
+{
+
+}
+
+void ALabyrinthCharacter::OnPrevWeapon()
+{
+
+}
+
+void ALabyrinthCharacter::OnEquipPrimaryWeapon()
+{
+
+}
+
+void ALabyrinthCharacter::OnEquipSecondaryWeapon()
+{
+
+}
+
+void ALabyrinthCharacter::DropWeapon()
+{
+
+}
+
+void ALabyrinthCharacter::ServerDropWeapon_Implementation()
+{
+	DropWeapon();
+}
+
+bool ALabyrinthCharacter::ServerDropWeapon_Validate()
+{
+	return true;
+}
+
+bool ALabyrinthCharacter::WeaponSlotAvailable(EInventorySlot CheckSlot)
+{
+	return false;
+}
+
+void ALabyrinthCharacter::StopAllAnimMontages()
+{
+	USkeletalMeshComponent* UseMesh = GetMesh();
+	if (UseMesh && UseMesh->AnimScriptInstance)
+	{
+		UseMesh->AnimScriptInstance->Montage_Stop(0.0f);
+	}
 }
