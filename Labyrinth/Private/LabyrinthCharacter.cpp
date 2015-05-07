@@ -859,6 +859,11 @@ bool ALabyrinthCharacter::WeaponSlotAvailable(EInventorySlot CheckSlot)
 	return false;
 }
 
+void ALabyrinthCharacter::AddWeapon(ALWeapon* Weapon)
+{
+
+}
+
 void ALabyrinthCharacter::StopAllAnimMontages()
 {
 	USkeletalMeshComponent* UseMesh = GetMesh();

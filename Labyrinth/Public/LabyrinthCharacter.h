@@ -317,24 +317,24 @@ public:
 
 	void SpawnDefaultInventory();
 
-	/*void SetCurrentItem(class APickup* NewItem, class APickup* LastItem = nullptr);
+	//void SetCurrentItem(class APickup* NewItem, class APickup* LastItem = nullptr);
 
-	void EquipItem(APickup* Item);
+	//void EquipItem(APickup* Item);
 
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerEquipItem(APickup* Item);
-	virtual void ServerEquipItem_Implementation(APickup* Item);
-	virtual bool ServerEquipItem_Validate(APickup* Item);
+	//UFUNCTION(Server, Reliable, WithValidation)
+	//void ServerEquipItem(APickup* Item);
+	//virtual void ServerEquipItem_Implementation(APickup* Item);
+	//virtual bool ServerEquipItem_Validate(APickup* Item);
 
-	UFUNCTION()
-	void OnRep_CurretItem(APickup* LastItem);
+	//UFUNCTION()
+	//void OnRep_CurretItem(APickup* LastItem);
 	
-	void AddItem(APickup* Item);
+	void AddWeapon(ALWeapon* Weapon);
 
-	void RemoveItem(APickup* Item);
+	//void RemoveItem(APickup* Item);
 
-	UPROPERTY(Transient, ReplciatedUsing = OnRep_CurretItem)
-	class APickup* CurrentItem;*/
+	//UPROPERTY(Transient, ReplciatedUsing = OnRep_CurretItem)
+	//class APickup* CurrentItem;
 
 	// MAKE THIS INTO THE WEAPON.
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")

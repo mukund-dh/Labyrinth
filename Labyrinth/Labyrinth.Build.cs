@@ -6,6 +6,12 @@ public class Labyrinth : ModuleRules
 {
 	public Labyrinth(TargetInfo Target)
 	{
+        PrivateIncludePaths.AddRange(
+            new string[] {
+                "Labyrinth/Private"
+            }
+        );
+
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

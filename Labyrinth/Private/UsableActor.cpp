@@ -22,3 +22,9 @@ bool AUsableActor::EndFocusItem_Implementation()
 	// virtual function
 	return true;
 }
+
+bool AUsableActor::OnUsed_Implementation(ACharacter* character)
+{
+	// virtual function
+	return true;
+}

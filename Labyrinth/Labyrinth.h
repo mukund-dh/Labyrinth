@@ -4,8 +4,10 @@
 
 #include "Engine.h"
 #include "UnrealNetwork.h"
-#include "LabyrinthGameMode.h"
-#include "LabyrinthCharacter.h"
+#include "Public/LabyrinthGameMode.h"
+#include "Public/LabyrinthCharacter.h"
+#include "Public/LWeapon.h"
+#include "Public/LWeaponPickup.h"
 
 /** when you modify this, please note that this information can be saved with instances
 * also DefaultEngine.ini [/Script/Engine.CollisionProfile] should match with this list **/

@@ -22,8 +22,9 @@ public:
 	 * this object. Should be implemented in the derived children's
 	 * blueprints.
 	 */
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintNativeEvent)
 	bool OnUsed(ACharacter* character);
+	bool OnUsed_Implementation(ACharacter* character);
 
 	/**
 	 * Function that implements what happens when the object becomes the focus
