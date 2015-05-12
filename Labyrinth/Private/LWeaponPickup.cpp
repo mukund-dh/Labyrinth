@@ -26,6 +26,10 @@ bool ALWeaponPickup::OnUsed_Implementation(ACharacter* character)
 			MyPawn->AddWeapon(NewWeapon);
 
 			Destroy();
+
+			return true;
 		}
 	}
+
+	return false;
 }

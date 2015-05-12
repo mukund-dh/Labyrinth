@@ -4,14 +4,19 @@
 
 #include "Engine.h"
 #include "UnrealNetwork.h"
-#include "Public/LabyrinthGameMode.h"
-#include "Public/LabyrinthCharacter.h"
-#include "Public/LWeapon.h"
-#include "Public/LWeaponPickup.h"
+#include "LabyrinthGameMode.h"
+#include "LabyrinthCharacter.h"
+#include "LWeapon.h"
+#include "LWeaponPickup.h"
 
 /** when you modify this, please note that this information can be saved with instances
 * also DefaultEngine.ini [/Script/Engine.CollisionProfile] should match with this list **/
 #define COLLISION_PROJECTILE			ECC_GameTraceChannel1
 #define COLLISION_WEAPON				ECC_GameTraceChannel2
+
+/** when you modify this, please note that this information can be saved with instances
+* also DefaultEngine.ini [/Script/Engine.PhysicsSettings] should match with this list **/
+#define SURFACE_DEFAULT				SurfaceType_Default
+#define SURFACE_FLESH				SurfaceType1
 
 

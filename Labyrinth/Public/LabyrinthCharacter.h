@@ -6,6 +6,7 @@
 #include "UsableActor.h"
 #include "PickupPropertyStructs.h"
 #include "GameplayDataStructs.h"
+#include "LWeapon.h"
 #include "LabyrinthCharacter.generated.h"
 
 UCLASS()
@@ -310,35 +311,33 @@ public:
 	/** Return the socket names for attachements */
 	FName GetInventoryAttachPoint(EInventorySlot Slot) const;
 
-	// MAKE THIS WEAPON!!!
 	/** All items that the player has */
 	UPROPERTY(Transient, Replicated)
-	TArray<AActor*> Inventory;
+	TArray<ALWeapon*> Inventory;
 
 	void SpawnDefaultInventory();
 
-	//void SetCurrentItem(class APickup* NewItem, class APickup* LastItem = nullptr);
+	void SetCurrentWeapon(class ALWeapon* NewItem, class ALWeapon* LastItem = nullptr);
 
-	//void EquipItem(APickup* Item);
+	void EquipWeapon(ALWeapon* Item);
 
-	//UFUNCTION(Server, Reliable, WithValidation)
-	//void ServerEquipItem(APickup* Item);
-	//virtual void ServerEquipItem_Implementation(APickup* Item);
-	//virtual bool ServerEquipItem_Validate(APickup* Item);
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerEquipWeapon(ALWeapon* Item);
+	virtual void ServerEquipWeapon_Implementation(ALWeapon* Item);
+	virtual bool ServerEquipWeapon_Validate(ALWeapon* Item);
 
-	//UFUNCTION()
-	//void OnRep_CurretItem(APickup* LastItem);
+	UFUNCTION()
+	void OnRep_CurrentWeapon(ALWeapon* LastItem);
 	
 	void AddWeapon(ALWeapon* Weapon);
 
-	//void RemoveItem(APickup* Item);
+	void RemoveWeapon(ALWeapon* Item);
 
-	//UPROPERTY(Transient, ReplciatedUsing = OnRep_CurretItem)
-	//class APickup* CurrentItem;
+	UPROPERTY(Transient, ReplciatedUsing = OnRep_CurrentWeapon)
+	class ALWeapon* CurrentWeapon;
 
-	// MAKE THIS INTO THE WEAPON.
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
-	TArray<TSubclassOf<class AActor>> DefaultInventoryClasses;
+	TArray<TSubclassOf<class ALWeapon>> DefaultInventoryClasses;
 
 	/** Returns Mesh1P subobject **/
 	FORCEINLINE class USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }

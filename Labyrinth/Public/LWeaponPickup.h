@@ -16,7 +16,7 @@ class LABYRINTH_API ALWeaponPickup : public AUsableActor
 	ALWeaponPickup(const FObjectInitializer& ObjectInitializer);
 
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<ALWeapon> WeaponClass;
+	TSubclassOf<class ALWeapon> WeaponClass;
 
 	bool OnUsed_Implementation(ACharacter* character);
 	

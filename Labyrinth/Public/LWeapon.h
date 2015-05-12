@@ -4,6 +4,7 @@
 
 #include "GameFramework/Actor.h"
 #include "GameplayDataStructs.h"
+#include "LWeaponPickup.h"
 #include "LWeapon.generated.h"
 
 UENUM()
@@ -19,6 +20,8 @@ UCLASS(ABSTRACT, Blueprintable)
 class LABYRINTH_API ALWeapon : public AActor
 {
 	GENERATED_BODY()
+
+public:
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
@@ -67,7 +70,7 @@ class LABYRINTH_API ALWeapon : public AActor
 
 	/** The class to spawn in the level when dropped */
 	UPROPERTY(EditDefaultsOnly, Category = "Game|Weapon")
-	TSubClassOf<class ALWeaponPickup> WeaponPickupClass;
+	TSubclassOf<class ALWeaponPickup> WeaponPickupClass;
 
 	/** The character socket to store this item at */
 	EInventorySlot StorageSlot;
@@ -76,7 +79,7 @@ protected:
 
 	/** Pawn Owner */
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_MyPawn)
-	class ALabyrinthCharacet* MyPawn;
+	class ALabyrinthCharacter* MyPawn;
 
 	/** Weapon Mesh */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
@@ -107,7 +110,9 @@ public:
 
 	void StartFire();
 
-	void EndFire();
+	void StopFire();
+
+	EWeaponState GetCurrentState() const;
 
 protected:
 
@@ -133,17 +138,17 @@ private:
 
 	virtual void HandleFiring();
 
-	UFUNCTION(Relaible, Server, WithValidation)
+	UFUNCTION(Reliable, Server, WithValidation)
 	void ServerStartFire();
 	virtual void ServerStartFire_Implementation();
 	virtual bool ServerStartFire_Validate();
 
-	UFUNCTION(Relaible, Server, WithValidation)
+	UFUNCTION(Reliable, Server, WithValidation)
 	void ServerStopFire();
 	virtual void ServerStopFire_Implementation();
 	virtual bool ServerStopFire_Validate();
 
-	UFUNCTION(Relaible, Server, WithValidation)
+	UFUNCTION(Reliable, Server, WithValidation)
 	void ServerHandleFiring();
 	virtual void ServerHandleFiring_Implementation();
 	virtual bool ServerHandleFiring_Validate();
@@ -209,6 +214,6 @@ protected:
 
 	float PlayWeaponAnimation(UAnimMontage* Animation, float InPlayRate = 1.f, FName StartSectionName = NAME_None);
 
-	void StopWeaponAnimation();
+	void StopWeaponAnimation(UAnimMontage* Animation);
 
 };
