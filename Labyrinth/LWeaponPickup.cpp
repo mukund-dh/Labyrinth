@@ -6,7 +6,8 @@
 
 ALWeaponPickup::ALWeaponPickup(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-
+	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh Comp"));
+	RootComponent = MeshComp;
 }
 
 bool ALWeaponPickup::OnUsed_Implementation(ACharacter* character)

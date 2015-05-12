@@ -331,9 +331,9 @@ public:
 	
 	void AddWeapon(ALWeapon* Weapon);
 
-	void RemoveWeapon(ALWeapon* Item);
+	void RemoveWeapon(ALWeapon* Weapon);
 
-	UPROPERTY(Transient, ReplciatedUsing = OnRep_CurrentWeapon)
+	UPROPERTY(Transient, ReplicatedUsing = OnRep_CurrentWeapon)
 	class ALWeapon* CurrentWeapon;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")

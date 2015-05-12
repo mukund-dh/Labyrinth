@@ -13,10 +13,15 @@ class LABYRINTH_API ALWeaponPickup : public AUsableActor
 {
 	GENERATED_BODY()
 
+public:
+
 	ALWeaponPickup(const FObjectInitializer& ObjectInitializer);
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class ALWeapon> WeaponClass;
+
+	UPROPERTY(EditDefaultsOnly)
+	UStaticMeshComponent* MeshComp;
 
 	bool OnUsed_Implementation(ACharacter* character);
 	

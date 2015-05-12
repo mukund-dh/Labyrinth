@@ -776,9 +776,9 @@ void ALabyrinthCharacter::SpawnDefaultInventory()
 		{
 			FActorSpawnParameters SpawnInfo;
 			SpawnInfo.bNoCollisionFail = true;
-			//ALWeapon* NewWeapon = GetWorld()->SpawnActor<ALWeapon>(DefaultInventoryClasses[i], SpawnInfo);
+			ALWeapon* NewWeapon = GetWorld()->SpawnActor<ALWeapon>(DefaultInventoryClasses[i], SpawnInfo);
 
-			//AddWeapon(NewWeapon);
+			AddWeapon(NewWeapon);
 		}
 	}
 }
@@ -806,42 +806,94 @@ void ALabyrinthCharacter::PawnClientRestart()
 {
 	Super::PawnClientRestart();
 
-	//SetCurrentItem(CurrentItem);
+	SetCurrentWeapon(CurrentWeapon);
 }
 
 void ALabyrinthCharacter::OnStartFire()
 {
-
+	if (IsSprinting())
+	{
+		SetSprinting(false);
+	}
+	StartWeaponFire();
 }
 
 void ALabyrinthCharacter::OnStopFire()
 {
+	StopWeaponFire();
+}
 
+void ALabyrinthCharacter::StartWeaponFire()
+{
+	if (!bWantsToFire)
+	{
+		bWantsToFire = true;
+		if (CurrentWeapon)
+		{
+			CurrentWeapon->StartFire();
+		}
+	}
+}
+
+void ALabyrinthCharacter::StopWeaponFire()
+{
+	if (bWantsToFire)
+	{
+		bWantsToFire = false;
+		if (CurrentWeapon)
+		{
+			CurrentWeapon->StopFire();
+		}
+	}
 }
 
 void ALabyrinthCharacter::OnNextWeapon()
 {
-
+	if (Inventory.Num() >= 2)
+	{
+		const int32 CurrentWeaponIndex = Inventory.IndexOfByKey(CurrentWeapon);
+		ALWeapon* NextWeapon = Inventory[(CurrentWeaponIndex + 1) % Inventory.Num()];
+		EquipWeapon(NextWeapon);
+	}
 }
 
 void ALabyrinthCharacter::OnPrevWeapon()
 {
-
-}
-
-void ALabyrinthCharacter::OnEquipPrimaryWeapon()
-{
-
-}
-
-void ALabyrinthCharacter::OnEquipSecondaryWeapon()
-{
-
+	if (Inventory.Num() >= 2)
+	{
+		const int32 CurrentWeaponIndex = Inventory.IndexOfByKey(CurrentWeapon);
+		ALWeapon* PrevWeapon = Inventory[(CurrentWeaponIndex - 1 + Inventory.Num()) % Inventory.Num()];
+		EquipWeapon(PrevWeapon);
+	}
 }
 
 void ALabyrinthCharacter::DropWeapon()
 {
+	if (Role < ROLE_Authority)
+	{
+		ServerDropWeapon();
+		return;
+	}
 
+	if (CurrentWeapon)
+	{
+		FVector CamLoc;
+		FRotator CamRot;
+
+		if (Controller == nullptr)
+			return;
+
+		// Find a location to drop the weapon, slightly in front of the player
+		Controller->GetPlayerViewPoint(CamLoc, CamRot);
+		const FVector Direction = CamRot.Vector();
+		const FVector SpawnLocation = GetActorLocation() + (Direction * DropItemDistance);
+
+		FActorSpawnParameters SpawnInfo;
+		SpawnInfo.bNoCollisionFail = true;
+		ALWeaponPickup* NewWeaponPickup = GetWorld()->SpawnActor<ALWeaponPickup>(CurrentWeapon->WeaponPickupClass, SpawnLocation, FRotator::ZeroRotator, SpawnInfo);
+
+		RemoveWeapon(CurrentWeapon);
+	}
 }
 
 void ALabyrinthCharacter::ServerDropWeapon_Implementation()
@@ -854,14 +906,140 @@ bool ALabyrinthCharacter::ServerDropWeapon_Validate()
 	return true;
 }
 
+void ALabyrinthCharacter::OnEquipPrimaryWeapon()
+{
+	if (Inventory.Num() >= 1)
+	{
+		// Find the first weapon that uses the primary slot
+		for (int32 i = 0; i < Inventory.Num(); i++)
+		{
+			ALWeapon* Weapon = Inventory[i];
+			if (Weapon->GetStorageSlot() == EInventorySlot::Primary)
+			{
+				EquipWeapon(Weapon);
+			}
+		}
+	}
+}
+
+void ALabyrinthCharacter::OnEquipSecondaryWeapon()
+{
+	if (Inventory.Num() >= 1)
+	{
+		// Find the first weapon that uses the secondary slot
+		for (int32 i = 0; i < Inventory.Num(); i++)
+		{
+			ALWeapon* Weapon = Inventory[i];
+			if (Weapon->GetStorageSlot() == EInventorySlot::Secondary)
+			{
+				EquipWeapon(Weapon);
+			}
+		}
+	}
+}
+
 bool ALabyrinthCharacter::WeaponSlotAvailable(EInventorySlot CheckSlot)
 {
-	return false;
+	// special find function used instead of looping the array and using if conditions.
+	// [=] prefix means "capture by value"
+	// [] means "capture nothing"
+	// [&] means "capture by reference
+
+	return nullptr == Inventory.FindByPredicate([=](ALWeapon* W){ return W->GetStorageSlot() == CheckSlot; });
 }
 
 void ALabyrinthCharacter::AddWeapon(ALWeapon* Weapon)
 {
+	if (Weapon && Role == ROLE_Authority)
+	{
+		Weapon->OnEnterInventory(this);
+		Inventory.AddUnique(Weapon);
 
+		// Equip first weapon in inventory
+		if (Inventory.Num() > 0)
+			EquipWeapon(Inventory[0]);
+	}
+}
+
+void ALabyrinthCharacter::RemoveWeapon(ALWeapon* Weapon)
+{
+	if (Weapon && Role == ROLE_Authority)
+	{
+		bool bIsCurrent = CurrentWeapon == Weapon;
+
+		if (Inventory.Contains(Weapon))
+		{
+			Weapon->OnLeaveInventory();
+		}
+		Inventory.RemoveSingle(Weapon);
+
+		// Replace weapon if we removed our current weapon
+		if (bIsCurrent && Inventory.Num() > 0)
+			SetCurrentWeapon(Inventory[0]);
+
+		// Clear reference to weapon if we have no items left 
+		if (Inventory.Num() == 0)
+			SetCurrentWeapon(nullptr);
+	}
+}
+
+
+void ALabyrinthCharacter::OnRep_CurrentWeapon(ALWeapon* LastWeapon)
+{
+	SetCurrentWeapon(CurrentWeapon, LastWeapon);
+}
+
+void ALabyrinthCharacter::ServerEquipWeapon_Implementation(ALWeapon* Weapon)
+{
+	EquipWeapon(Weapon);
+}
+
+bool ALabyrinthCharacter::ServerEquipWeapon_Validate(ALWeapon* Weapon)
+{
+	return true;
+}
+
+void ALabyrinthCharacter::EquipWeapon(ALWeapon* Weapon)
+{
+	if (Weapon)
+	{
+		if (Role == ROLE_Authority)
+		{
+			SetCurrentWeapon(Weapon);
+		}
+		else
+		{
+			ServerEquipWeapon(Weapon);
+		}
+	}
+}
+
+void ALabyrinthCharacter::SetCurrentWeapon(class ALWeapon* NewWeapon, class ALWeapon* LastWeapon)
+{
+	ALWeapon* LocalLastWeapon = nullptr;
+
+	if (LastWeapon)
+	{
+		LocalLastWeapon = LastWeapon;
+	}
+	else if (NewWeapon != CurrentWeapon)
+	{
+		LocalLastWeapon = CurrentWeapon;
+	}
+
+	// Unequip the current weapon
+	if (LocalLastWeapon)
+	{
+		LocalLastWeapon->OnUnEquip();
+	}
+
+	CurrentWeapon = NewWeapon;
+
+	if (NewWeapon)
+	{
+		NewWeapon->SetOwningPawn(this);
+		NewWeapon->OnEquip();
+	}
 }
 
 void ALabyrinthCharacter::StopAllAnimMontages()
