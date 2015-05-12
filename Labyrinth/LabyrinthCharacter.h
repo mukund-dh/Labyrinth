@@ -284,9 +284,9 @@ private:
 
 	void OnEquipSecondaryWeapon();
 
-	//void StartWeaponFire();
+	void StartWeaponFire();
 
-	//void StopWeaponFire();
+	void StopWeaponFire();
 
 	void DestroyInventory();
 
@@ -317,17 +317,17 @@ public:
 
 	void SpawnDefaultInventory();
 
-	void SetCurrentWeapon(class ALWeapon* NewItem, class ALWeapon* LastItem = nullptr);
+	void SetCurrentWeapon(class ALWeapon* NewWeapon, class ALWeapon* LastWeapon = nullptr);
 
-	void EquipWeapon(ALWeapon* Item);
+	void EquipWeapon(ALWeapon* Weapon);
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerEquipWeapon(ALWeapon* Item);
-	virtual void ServerEquipWeapon_Implementation(ALWeapon* Item);
-	virtual bool ServerEquipWeapon_Validate(ALWeapon* Item);
+	void ServerEquipWeapon(ALWeapon* Weapon);
+	virtual void ServerEquipWeapon_Implementation(ALWeapon* Weapon);
+	virtual bool ServerEquipWeapon_Validate(ALWeapon* Weapon);
 
 	UFUNCTION()
-	void OnRep_CurrentWeapon(ALWeapon* LastItem);
+	void OnRep_CurrentWeapon(ALWeapon* LastWeapon);
 	
 	void AddWeapon(ALWeapon* Weapon);
 
