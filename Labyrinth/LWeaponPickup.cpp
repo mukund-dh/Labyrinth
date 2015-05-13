@@ -10,7 +10,7 @@ ALWeaponPickup::ALWeaponPickup(const FObjectInitializer& ObjectInitializer) : Su
 	RootComponent = MeshComp;
 }
 
-bool ALWeaponPickup::OnUsed_Implementation(ACharacter* character)
+bool ALWeaponPickup::OnUsed(ACharacter* character)
 {
 	ALabyrinthCharacter* MyPawn = Cast<ALabyrinthCharacter>(character);
 	if (MyPawn)

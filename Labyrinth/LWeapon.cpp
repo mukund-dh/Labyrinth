@@ -2,7 +2,7 @@
 
 #include "Labyrinth.h"
 #include "LWeapon.h"
-#include "LPlayerController.h"
+#include "Public/LPlayerController.h"
 
 
 // Sets default values
@@ -21,7 +21,6 @@ ALWeapon::ALWeapon(const FObjectInitializer& ObjectInitializer) : Super(ObjectIn
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 	Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
-
 	RootComponent = Mesh;
 
 	bIsEquipped = false;
@@ -456,13 +455,13 @@ void ALWeapon::DetermineWeaponState()
 		{
 			NewState = EWeaponState::Firing;
 		}
-		else if (bPendingEquip)
-		{
-			NewState = EWeaponState::Equipping;
-		}
-		
-		SetWeaponState(NewState);
 	}
+	else if (bPendingEquip)
+	{
+		NewState = EWeaponState::Equipping;
+	}
+		
+	SetWeaponState(NewState);
 }
 
 float ALWeapon::GetEquipStartedTime() const

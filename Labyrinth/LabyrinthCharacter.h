@@ -15,8 +15,12 @@ class LABYRINTH_API ALabyrinthCharacter : public ACharacter
 	GENERATED_BODY()
 
 	/** Pawn Skeletal Mesh */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	class USkeletalMeshComponent* Mesh1P;
+	/*UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	class USkeletalMeshComponent* Mesh1P;*/
+	
+	/** Boom to handle distance to player mesh. */
+	UPROPERTY(VisibleAnywhere, Category = "Camera")
+	USpringArmComponent* CameraBoomComp;
 
 	/** First Person Camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -340,7 +344,7 @@ public:
 	TArray<TSubclassOf<class ALWeapon>> DefaultInventoryClasses;
 
 	/** Returns Mesh1P subobject **/
-	FORCEINLINE class USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
+	/*FORCEINLINE class USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }*/
 	/** Returns FirstPersonCameraComponent subobject **/
 	FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { return CameraComponent1P; }
 

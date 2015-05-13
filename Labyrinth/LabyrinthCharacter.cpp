@@ -29,16 +29,22 @@ ALabyrinthCharacter::ALabyrinthCharacter(const FObjectInitializer& ObjectInitial
 	BaseTurnRate = 45.0f;
 	BaseLookUpRate = 45.0f;
 
-	CameraComponent1P = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
-	CameraComponent1P->AttachParent = GetCapsuleComponent();
-	CameraComponent1P->RelativeLocation = FVector(0, 0, 64.0f);
-	CameraComponent1P->bUsePawnControlRotation = true;
+	CameraBoomComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("BoomComp"));
+	CameraBoomComp->SocketOffset = FVector(0, 35, 0);
+	CameraBoomComp->TargetOffset = FVector(0, 0, 55);
+	CameraBoomComp->bUsePawnControlRotation = true;
+	CameraBoomComp->AttachParent = GetRootComponent();
 
-	Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FirstPersonMesh"));
+	CameraComponent1P = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
+	CameraComponent1P->AttachParent = CameraBoomComp;
+	/*CameraComponent1P->RelativeLocation = FVector(0, 0, 64.0f);
+	CameraComponent1P->bUsePawnControlRotation = true;*/
+
+	/*Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FirstPersonMesh"));
 	Mesh1P->SetOnlyOwnerSee(true);
 	Mesh1P->AttachParent = GetFirstPersonCameraComponent();
 	Mesh1P->RelativeLocation = FVector(0, 0, -150.0f);
-	Mesh1P->bCastDynamicShadow = false;
+	Mesh1P->bCastDynamicShadow = false;*/
 
 	MaxUseDistance = 100.0f;
 	DropItemDistance = 50.0f;
@@ -69,6 +75,8 @@ void ALabyrinthCharacter::PostInitializeComponents()
 		FTimerHandle Timer;
 		// Add a timer for the hunger to start kicking in
 		GetWorld()->GetTimerManager().SetTimer(Timer, this, &ALabyrinthCharacter::IncrementHunger, IncrementHungerInterval, true);
+
+		SpawnDefaultInventory();
 	}
 }
 
@@ -84,7 +92,7 @@ void ALabyrinthCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >
 	DOREPLIFETIME(ALabyrinthCharacter, Health);
 	DOREPLIFETIME(ALabyrinthCharacter, Hunger);
 	DOREPLIFETIME(ALabyrinthCharacter, LastTakeHitInfo);
-	//DOREPLIFETIME(ALabyrinthCharacter, CurrentWeapon);
+	DOREPLIFETIME(ALabyrinthCharacter, CurrentWeapon);
 	DOREPLIFETIME(ALabyrinthCharacter, FoodInventory);
 }
 
@@ -145,7 +153,16 @@ void ALabyrinthCharacter::Use_Implementation()
 	AUsableActor* usable = GetUsableInView();
 	if (usable)
 	{
-		usable->OnUsed(this);
+		ALWeaponPickup* WP = Cast<ALWeaponPickup>(usable);
+		if (WP)
+		{
+			WP->OnUsed(this);
+		}
+		else
+		{
+			usable->OnUsed(this);
+		}
+		
 	}
 }
 
@@ -790,16 +807,16 @@ void ALabyrinthCharacter::DestroyInventory()
 		return;
 	}
 
-	for (int32 i = Inventory.Num() - 1; i >= 0; i++)
-	{
-		// Change this to ALWeapon
-		AActor* Weapon = Inventory[i];
-		if (Weapon)
-		{
-			//RemoveWeapon(Weapon);
-			Weapon->Destroy();
-		}
-	}
+	//for (int32 i = Inventory.Num() - 1; i >= 0; i++)
+	//{
+	//	// Change this to ALWeapon
+	//	ALWeapon* Weapon = Inventory[i];
+	//	if (Weapon)
+	//	{
+	//		RemoveWeapon(Weapon);
+	//		Weapon->Destroy();
+	//	}
+	//}
 }
 
 void ALabyrinthCharacter::PawnClientRestart()

@@ -23,6 +23,6 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	UStaticMeshComponent* MeshComp;
 
-	bool OnUsed_Implementation(ACharacter* character);
+	bool OnUsed(ACharacter* character);
 	
 };
