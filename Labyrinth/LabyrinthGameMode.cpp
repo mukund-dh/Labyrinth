@@ -3,7 +3,7 @@
 #include "Labyrinth.h"
 #include "LabyrinthGameMode.h"
 #include "Public/LPlayerController.h"
-
+#include "Public/LHUD.h"
 
 
 ALabyrinthGameMode::ALabyrinthGameMode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -12,8 +12,7 @@ ALabyrinthGameMode::ALabyrinthGameMode(const FObjectInitializer& ObjectInitializ
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT("/Game/Blueprints/MainChar"));
 	DefaultPawnClass = PlayerPawnClassFinder.Class;
 
-	static ConstructorHelpers::FClassFinder<AHUD> HUDClassFinder(TEXT("/Game/Blueprints/BP_HUD"));
-	HUDClass = HUDClassFinder.Class;
+	HUDClass = ALHUD::StaticClass();
 
 	PlayerControllerClass = ALPlayerController::StaticClass();
 }
