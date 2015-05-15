@@ -221,11 +221,14 @@ void ALabyrinthCharacter::SetupPlayerInputComponent(class UInputComponent* Input
 	InputComponent->BindAction("EquipPrimaryWeapon", IE_Pressed, this, &ALabyrinthCharacter::OnEquipPrimaryWeapon);
 	InputComponent->BindAction("EquipSecondaryWeapon", IE_Pressed, this, &ALabyrinthCharacter::OnEquipSecondaryWeapon);
 
-	if (EnableTouchscreenMovement(InputComponent) == false)
+	/*if (EnableTouchscreenMovement(InputComponent) == false)
 	{
 		InputComponent->BindAction("Fire", IE_Pressed, this, &ALabyrinthCharacter::OnStartFire);
 		InputComponent->BindAction("Fire", IE_Released, this, &ALabyrinthCharacter::OnStopFire);
-	}
+	}*/
+
+	InputComponent->BindAction("Fire", IE_Pressed, this, &ALabyrinthCharacter::OnStartFire);
+	InputComponent->BindAction("Fire", IE_Released, this, &ALabyrinthCharacter::OnStopFire);
 
 	InputComponent->BindAxis("MoveForward", this, &ALabyrinthCharacter::MoveForward);
 	InputComponent->BindAxis("MoveRight", this, &ALabyrinthCharacter::MoveRight);
@@ -582,6 +585,7 @@ float ALabyrinthCharacter::TakeDamage(float Damage, struct FDamageEvent const& D
 		}
 	}
 
+	GEngine->AddOnScreenDebugMessage(-1, 15, FColor::Red, this->GetName() + "health: " + FString::SanitizeFloat(Health));
 	return ActualDamage;
 }
 

@@ -2,7 +2,7 @@
 
 #include "Labyrinth.h"
 #include "LabyrinthGameMode.h"
-
+#include "Public/LPlayerController.h"
 
 
 
@@ -14,4 +14,6 @@ ALabyrinthGameMode::ALabyrinthGameMode(const FObjectInitializer& ObjectInitializ
 
 	static ConstructorHelpers::FClassFinder<AHUD> HUDClassFinder(TEXT("/Game/Blueprints/BP_HUD"));
 	HUDClass = HUDClassFinder.Class;
+
+	PlayerControllerClass = ALPlayerController::StaticClass();
 }

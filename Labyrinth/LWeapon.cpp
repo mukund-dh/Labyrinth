@@ -412,7 +412,7 @@ void ALWeapon::SetWeaponState(EWeaponState NewState)
 
 	CurrentState = NewState;
 
-	if (PrevState == EWeaponState::Firing && NewState == EWeaponState::Firing)
+	if (PrevState != EWeaponState::Firing && NewState == EWeaponState::Firing)
 	{
 		OnBurstStarted();
 	}
