@@ -127,6 +127,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float SprintingSpeedModifier;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class UDamageType> DamageType;
 
 	/***************************************************************************/
 	/* Object Interaction                                                      */
@@ -249,6 +252,13 @@ public:
 
 	UFUNCTION()
 	void OnRep_LastTakeHitInfo();
+
+	void ApplyFallDamage();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerApplyFallDamage();
+	virtual void ServerApplyFallDamage_Implementation();
+	virtual bool ServerApplyFallDamage_Validate();
 
 	bool bIsDying;
 

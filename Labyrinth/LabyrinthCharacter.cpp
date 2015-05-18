@@ -3,6 +3,7 @@
 #include "Labyrinth.h"
 #include "LabyrinthCharacter.h"
 #include "LabyrinthCharMoveComp.h"
+#include "Public/LFallDamage.h"
 
 
 // Sets default values
@@ -431,6 +432,38 @@ void ALabyrinthCharacter::OnLanded(const FHitResult& Hit)
 	Super::OnLanded(Hit);
 
 	SetIsJumping(false);
+
+	float FallingVelocity = GetCapsuleComponent()->GetPhysicsLinearVelocity().Z;
+	if (FMath::Abs(FallingVelocity) > 1000.0f)
+	{
+		ApplyFallDamage();
+	}
+}
+
+void ALabyrinthCharacter::ApplyFallDamage()
+{
+	if (Role < ROLE_Authority)
+	{
+		ServerApplyFallDamage();
+	}
+
+	float DamageFactor = FMath::Clamp((FMath::Abs(GetCapsuleComponent()->GetPhysicsLinearVelocity().Z) - 1000.0f) / 10.0f, 0.0f, 100.0f);
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, FString::SanitizeFloat(DamageFactor));
+
+	FDamageEvent FallDamage;
+	FallDamage.DamageTypeClass = DamageType;
+
+	TakeDamage(DamageFactor, FallDamage, GetController(), this);
+}
+
+void ALabyrinthCharacter::ServerApplyFallDamage_Implementation()
+{
+	ApplyFallDamage();
+}
+
+bool ALabyrinthCharacter::ServerApplyFallDamage_Validate()
+{
+	return true;
 }
 
 void ALabyrinthCharacter::ServerSetIsJumping_Implementation(bool NewJumping)
@@ -585,7 +618,6 @@ float ALabyrinthCharacter::TakeDamage(float Damage, struct FDamageEvent const& D
 		}
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 15, FColor::Red, this->GetName() + "health: " + FString::SanitizeFloat(Health));
 	return ActualDamage;
 }
 
