@@ -39,6 +39,10 @@ public:
 
 	bool IsAttachedToPawn() const;
 
+	void OnReload();
+
+	void OnReloadFinished();
+
 	/** Get weapon mesh (needs pawn owner to determine variant */
 	UFUNCTION(BlueprintCallable, Category = "Game|Weapon")
 	USkeletalMeshComponent* GetWeaponMesh() const;
@@ -60,6 +64,16 @@ public:
 	/** how much time the weapon needs to be equipped */
 	float EquipDuration;
 
+	/** Pending Reload */
+	UPROPERTY(Transient, ReplicatedUsing = OnRep_Reload)
+	bool bPendingReload;
+
+	/** Reload Duration */
+	float ReloadDuration;
+
+	/** Last time this weapon was reloaded */
+	float ReloadStartTime;
+
 	bool bIsEquipped;
 
 	bool bPendingEquip;
@@ -68,12 +82,17 @@ public:
 
 	FTimerHandle EquipFinishedTimerHandle;
 
+	FTimerHandle ReloadFinishedTimerHandle;
+
 	/** The class to spawn in the level when dropped */
 	UPROPERTY(EditDefaultsOnly, Category = "Game|Weapon")
 	TSubclassOf<class ALWeaponPickup> WeaponPickupClass;
 
 	/** The character socket to store this item at */
 	EInventorySlot StorageSlot;
+
+	UFUNCTION()
+	void OnRep_Reload();
 
 protected:
 
@@ -96,6 +115,9 @@ public:
 	// Sets default values for this actor's properties
 	ALWeapon(const FObjectInitializer& ObjectInitializer);
 
+	UPROPERTY(EditDefaultsOnly, Replicated)
+	int32 AmmoClipSize;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	
@@ -117,6 +139,9 @@ public:
 protected:
 
 	bool CanFire() const;
+
+	UFUNCTION()
+	bool IsReloading() const;
 
 	FVector GetAdjustedAim() const;
 
@@ -153,6 +178,11 @@ private:
 	virtual void ServerHandleFiring_Implementation();
 	virtual bool ServerHandleFiring_Validate();
 
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerOnReload();
+	virtual void ServerOnReload_Implementation();
+	virtual bool ServerOnReload_Validate();
+
 	void OnBurstStarted();
 
 	void OnBurstFinished();
@@ -180,11 +210,17 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 	USoundCue* EquipSound;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	USoundCue* ReloadSound;
+
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UParticleSystem* MuzzleFX;
 
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* EquipAnim;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* ReloadAnim;
 
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* FireAnim;
@@ -199,6 +235,9 @@ private:
 
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_BurstCounter)
 	int32 BurstCounter;
+
+	UPROPERTY(Transient, Replicated)
+	int32 ClipBulletCount;
 
 protected:
 

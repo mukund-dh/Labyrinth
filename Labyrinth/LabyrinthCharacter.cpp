@@ -448,7 +448,6 @@ void ALabyrinthCharacter::ApplyFallDamage()
 	}
 
 	float DamageFactor = FMath::Clamp((FMath::Abs(GetCapsuleComponent()->GetPhysicsLinearVelocity().Z) - 1000.0f) / 10.0f, 0.0f, 100.0f);
-	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, FString::SanitizeFloat(DamageFactor));
 
 	FDamageEvent FallDamage;
 	FallDamage.DamageTypeClass = DamageType;

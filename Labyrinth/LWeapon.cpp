@@ -32,6 +32,8 @@ ALWeapon::ALWeapon(const FObjectInitializer& ObjectInitializer) : Super(ObjectIn
 
 	MuzzleAttachPoint = TEXT("MuzzleAttachSocket");
 	StorageSlot = EInventorySlot::Primary;
+	AmmoClipSize = 30;
+	ClipBulletCount = 0;
 }
 
 void ALWeapon::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -165,6 +167,58 @@ bool ALWeapon::IsAttachedToPawn() const
 	return bIsEquipped || bPendingEquip;
 }
 
+bool ALWeapon::IsReloading() const
+{
+	return bPendingReload;
+}
+
+void ALWeapon::OnReload()
+{
+	if (Role < ROLE_Authority)
+	{
+		ServerOnReload();
+	}
+
+	bPendingReload = true;
+	DetermineWeaponState();
+
+	float Duration = PlayWeaponAnimation(ReloadAnim);
+	if (Duration < 0.0f)
+	{
+		Duration = 0.5f;
+	}
+
+	ReloadStartTime = GetWorld()->GetTimeSeconds();
+	ReloadDuration = Duration;
+
+	GetWorldTimerManager().SetTimer(ReloadFinishedTimerHandle, this, &ALWeapon::OnReloadFinished, Duration, false);
+
+	if (MyPawn && MyPawn->IsLocallyControlled())
+	{
+		PlayWeaponSound(ReloadSound);
+	}
+}
+
+void ALWeapon::ServerOnReload_Implementation()
+{
+	OnReload();
+}
+
+bool ALWeapon::ServerOnReload_Validate()
+{
+	return true;
+}
+
+void ALWeapon::OnReloadFinished()
+{
+	bPendingReload = false;
+	DetermineWeaponState();
+
+	ClipBulletCount = 0;
+
+	GetWorldTimerManager().ClearTimer(ReloadFinishedTimerHandle);
+}
+
 void ALWeapon::StartFire()
 {
 	if (Role < ROLE_Authority)
@@ -274,7 +328,7 @@ FHitResult ALWeapon::WeaponTrace(const FVector& TraceFrom, const FVector& TraceT
 
 void ALWeapon::HandleFiring()
 {
-	if (CanFire())
+	if (ClipBulletCount < AmmoClipSize && CanFire())
 	{
 		if (GetNetMode() != NM_DedicatedServer)
 		{
@@ -284,9 +338,13 @@ void ALWeapon::HandleFiring()
 		if (MyPawn && MyPawn->IsLocallyControlled())
 		{
 			FireWeapon();
+			ClipBulletCount++;
 
 			BurstCounter++;
 		}
+	} else if (ClipBulletCount == AmmoClipSize)
+	{
+		OnReload();
 	}
 
 	if (MyPawn && MyPawn->IsLocallyControlled())
@@ -294,6 +352,11 @@ void ALWeapon::HandleFiring()
 		if (Role < ROLE_Authority)
 		{
 			ServerHandleFiring();
+		}
+
+		if (ClipBulletCount == AmmoClipSize)
+		{
+			OnReload();
 		}
 
 		bRefiring = (CurrentState == EWeaponState::Firing && TimeBetweenShots > 0.f);
@@ -304,6 +367,19 @@ void ALWeapon::HandleFiring()
 	}
 
 	fLastFireTime = GetWorld()->GetTimeSeconds();
+}
+
+void ALWeapon::OnRep_Reload()
+{
+	if (bPendingReload)
+	{
+		OnReload();
+	}
+	else
+	{
+		OnReloadFinished();
+	}
+
 }
 
 void ALWeapon::SimulateWeaponFire()
@@ -372,6 +448,9 @@ void ALWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ALWeapon, MyPawn);
+	DOREPLIFETIME(ALWeapon, AmmoClipSize);
+	DOREPLIFETIME(ALWeapon, ClipBulletCount);
+	DOREPLIFETIME_CONDITION(ALWeapon, bPendingReload, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(ALWeapon, BurstCounter, COND_SkipOwner);
 }
 
@@ -453,7 +532,14 @@ void ALWeapon::DetermineWeaponState()
 	{
 		if (bWantsToFire && CanFire())
 		{
-			NewState = EWeaponState::Firing;
+			if (bPendingReload)
+			{
+				NewState = EWeaponState::Reloading;
+			}
+			else
+			{
+				NewState = EWeaponState::Firing;
+			}
 		}
 	}
 	else if (bPendingEquip)
