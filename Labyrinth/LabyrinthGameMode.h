@@ -140,5 +140,5 @@ public:
 	static FString GetBotsCountOptionName();
 
 	UPROPERTY()
-	TArray<class ALPickupBase*> LevelPickups;
+	TArray<class APickupBase*> LevelPickups;
 };
