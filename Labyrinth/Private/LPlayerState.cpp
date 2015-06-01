@@ -2,6 +2,7 @@
 
 #include "Labyrinth.h"
 #include "Public/LPlayerState.h"
+#include "public/LGameState.h"
 #include "Public/LPlayerController.h"
 
 
@@ -144,17 +145,16 @@ void ALPlayerState::ScoreDeath(ALPlayerState* KilledBy, int32 Points)
 
 void ALPlayerState::ScorePoints(int32 Points)
 {
-	// Change this to the LGameState class
-	AGameState* const MyGameState = Cast<AGameState>(GetWorld()->GetGameState());
+	ALGameState* const MyGameState = Cast<ALGameState>(GetWorld()->GetGameState());
 	if (MyGameState && TeamNumber >= 0)
 	{
 		// Handle the team scoring
-		/*if (TeamNumber >= MyGameState->TeamScores.Num())
+		if (TeamNumber >= MyGameState->TeamScores.Num())
 		{
-			MyGameState->TeamScores.AddZeroed(TeamNUmber - MyGameState->TeamScores.Num() + 1);
+			MyGameState->TeamScores.AddZeroed(TeamNumber - MyGameState->TeamScores.Num() + 1);
 		}
 
-		MyGameState->TeamScores[TeamNumber] += Points;*/
+		MyGameState->TeamScores[TeamNumber] += Points;
 	}
 
 	Score += Points;
