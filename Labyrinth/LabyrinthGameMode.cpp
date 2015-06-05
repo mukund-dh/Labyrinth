@@ -6,6 +6,7 @@
 #include "Public/LPlayerState.h"
 #include "Public/LHUD.h"
 #include "Public/LGameState.h"
+#include "Public/GameplayBase/LGameSession.h"
 
 
 ALabyrinthGameMode::ALabyrinthGameMode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -55,7 +56,7 @@ void ALabyrinthGameMode::SetAllowBots(bool bInAllowBots, int32 InMaxBots)
 TSubclassOf<AGameSession> ALabyrinthGameMode::GetGameSessionClass() const
 {
 	// TO-DO: Change this to ALabyrinthGameSession
-	return AGameSession::StaticClass();
+	return ALGameSession::StaticClass();
 }
 
 void ALabyrinthGameMode::DefaultTimer()
