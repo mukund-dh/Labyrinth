@@ -21,18 +21,22 @@ public:
 	/** Sets the spectator location and rotation */
 	UFUNCTION(Reliable, Client)
 	void ClientSetSpectatorCamera(FVector CameraLocation, FRotator CameraRotation);
+	virtual void ClientSetSpectatorCamera_Implementation(FVector CameraLocation, FRotator CameraRotation);
 
 	/** notify player about the started match */
 	UFUNCTION(Reliable, Client)
 	void ClientGameStarted();
+	virtual void ClientGameStarted_Implementation();
 
 	/** Starts the online game using the session name in the playerstate */
 	UFUNCTION(Reliable, Client)
 	void ClientStartOnlineGame();
+	virtual void ClientStartOnlineGame_Implementation();
 
 	/** Ends the online game using the session name in the playerstate */
 	UFUNCTION(Reliable, Client)
 	void ClientEndOnlineGame();
+	virtual void ClientEndOnlineGame_Implementation();
 
 	/** notify player about finished match */
 	virtual void ClientGameEnded_Implementation(class AActor* EndGameFocus, bool bIsWinner);
@@ -40,6 +44,7 @@ public:
 	/** Notifies client to send end of round events */
 	UFUNCTION(Reliable, Client)
 	void ClientSendRoundEndEvent(bool bIsWinner, int32 ExpendedTimeInSeconds);
+	virtual void ClientSendRoundEndEvent_Implementation(bool bIsWinner, int32 ExpendedTimeInSeconds);
 
 	/** Used for input simulation from blueprint (for automatic perf tests) */
 	UFUNCTION(BlueprintCallable, Category = "Input")
@@ -178,10 +183,10 @@ public:
 	void OnKill();
 
 	/** Cleans up any resources necessary to return to the Main Menu. Does not modify GameInstance state */
-	virtual void HandleReturnToMainMenu()
+	virtual void HandleReturnToMainMenu();
 
 	/** Associate new player UPlayer with this PlayerController */
-	virtual void SetPlayer(UPlayer* Player);
+	virtual void SetPlayer(UPlayer* InPlayer);
 
 	// End ALPlayerController specific interface
 

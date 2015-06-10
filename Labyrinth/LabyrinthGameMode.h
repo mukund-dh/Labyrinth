@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/GameMode.h"
+#include "Public/LPlayerState.h"
 #include "LabyrinthGameMode.generated.h"
 
 /**
